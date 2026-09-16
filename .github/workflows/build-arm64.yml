@@ -9,10 +9,8 @@ jobs:
     runs-on: ubuntu-24.04-arm
 
     steps:
-      - name: Checkout Zint 2.16.0
+      - name: Checkout Zint
         uses: actions/checkout@v4
-        with:
-          ref: 2.16.0
 
       - name: Install dependencies
         run: |
