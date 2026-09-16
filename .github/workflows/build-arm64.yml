@@ -46,8 +46,6 @@ jobs:
     steps:
       - name: Checkout Zint 2.16.0
         uses: actions/checkout@v4
-        with:
-          ref: 2.16.0
 
       - name: Configure
         shell: pwsh
