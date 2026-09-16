@@ -1,0 +1,79 @@
+name: Build Zint ARM64 libraries
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  linux-arm64:
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+      - name: Checkout Zint 2.16.0
+        uses: actions/checkout@v4
+        with:
+          ref: 2.16.0
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake libpng-dev
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DZINT_SHARED=ON \
+            -DZINT_STATIC=OFF \
+            -DZINT_USE_QT=OFF
+
+      - name: Build
+        run: |
+          cmake --build build -j$(nproc)
+
+      - name: Show architecture
+        run: |
+          file build/backend/libzint.so
+
+      - name: Upload Linux ARM64 library
+        uses: actions/upload-artifact@v4
+        with:
+          name: zint-linux-arm64
+          path: |
+            build/backend/libzint.so*
+
+  windows-arm64:
+    runs-on: windows-11-arm
+
+    steps:
+      - name: Checkout Zint 2.16.0
+        uses: actions/checkout@v4
+        with:
+          ref: 2.16.0
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake -S . -B build `
+            -A ARM64 `
+            -DZINT_SHARED=ON `
+            -DZINT_STATIC=OFF `
+            -DZINT_USE_QT=OFF `
+            -DZINT_USE_PNG=OFF
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake --build build --config Release
+
+      - name: Find DLL
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse -Filter zint.dll
+
+      - name: Upload Windows ARM64 library
+        uses: actions/upload-artifact@v4
+        with:
+          name: zint-windows-arm64
+          path: |
+            build/**/zint.dll
